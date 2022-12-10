@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap');
+
+body {
+    font-size: 40px;
+    font-family: 'Zen Dots', cursive;
+}
+
+.canvas-wrapper {
+    text-align: center;
+}
+
+#game {
+    border: 4px solid #000;
+}
+
+#reset {
+    padding: 10px;
+    font-size: 20px;
+    font-family: 'Zen Dots', cursive;
+    background-color: lightgreen;
+    border: 4px solid black;
+}
