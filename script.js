@@ -7,7 +7,7 @@ const canvasHeight = game.height;
 const gameBackgroundColor = "white";
 const snakeColor = "lightgreen";
 const foodColor = "red";
-const unit = 25;
+const unit = 250;
 
 let running = false;
 let xVelocity = unit;
@@ -51,10 +51,19 @@ function createFood() {
             Math.round((Math.random() * (max - min) + min) / unit) * unit;
         return randomNumber;
     }
-
-    foodX = randomFoodPosition(0, canvasWidth - unit);  
+    
+    foodX = randomFoodPosition(0, canvasWidth - unit);
     foodY = randomFoodPosition(0, canvasHeight - unit);
+
+    snake.forEach((part) => {
+        if (part.x == foodX && part.y == foodY) {
+            createFood();
+        } else {
+            return;
+        }
+    });
 }
+
 
 function drawFood() {
     context.fillStyle = foodColor;
@@ -153,7 +162,7 @@ function checkGameOver() {
         case snake[0].x > canvasWidth:
             running = false;
             break;
-        case snake[0].y < 0: 
+        case snake[0].y < 0:
             running = false;
             break;
         case snake[0].y > canvasHeight:
