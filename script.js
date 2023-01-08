@@ -7,7 +7,8 @@ const canvasHeight = game.height;
 const gameBackgroundColor = "white";
 const snakeColor = "lightgreen";
 const foodColor = "red";
-const unit = 250;
+const unit = 25;
+const nextTickDelay = 100;
 
 let running = false;
 let xVelocity = unit;
@@ -32,6 +33,22 @@ let snake = [
     { x: 0, y: 0 },
 ];
 
+
+// массив всех клеток, не занятых змеей [{x: 0, y: 1}, ...]
+let freeCells = [];
+for (let i = 0; i < Math.floor(canvasWidth/unit); i++) {
+    for (let j = 0; j < Math.floor(canvasHeight/unit); j++) {
+        let elem = {x: i * unit, y: j * unit};
+        freeCells.push(elem);
+    }
+}
+freeCells = freeCells.filter( elem => {
+    partOfSnake = (snakeCell) => (elem.x === snakeCell.x && elem.y === snakeCell.y)
+    // partOfSnake == true для хотя бы одного элемента snake -> вернуть false
+    return !snake.some(partOfSnake)
+});
+
+
 window.addEventListener("keydown", changeDirection);
 reset.addEventListener("click", resetGame);
 
@@ -45,25 +62,33 @@ function gameStart() {
     nextTick();
 }
 
-function createFood() {
-    function randomFoodPosition(min, max) {
-        const randomNumber =
-            Math.round((Math.random() * (max - min) + min) / unit) * unit;
-        return randomNumber;
-    }
+// function createFood() {
+//     function randomFoodPosition(min, max) {
+//         const randomNumber =
+//             Math.round((Math.random() * (max - min) + min) / unit) * unit;
+//         return randomNumber;
+//     }
     
-    foodX = randomFoodPosition(0, canvasWidth - unit);
-    foodY = randomFoodPosition(0, canvasHeight - unit);
+//     foodX = randomFoodPosition(0, canvasWidth - unit);
+//     foodY = randomFoodPosition(0, canvasHeight - unit);
 
-    snake.forEach((part) => {
-        if (part.x == foodX && part.y == foodY) {
-            createFood();
-        } else {
-            return;
-        }
-    });
+//     snake.forEach((part) => {
+//         if (part.x == foodX && part.y == foodY) {
+//             createFood();
+//         } else {
+//             return;
+//         }
+//     });
+// }
+
+function createFood() {
+    // взять случайный элемент массива freeCells: randomCell
+    let randomNumber = Math.floor(Math.random() * freeCells.length);
+    let randomCell = freeCells[randomNumber];
+
+    foodX = randomCell.x;
+    foodY = randomCell.y;
 }
-
 
 function drawFood() {
     context.fillStyle = foodColor;
@@ -79,7 +104,7 @@ function nextTick() {
             drawSnake();
             checkGameOver();
             nextTick();
-        }, 100);
+        }, nextTickDelay);
     } else {
         showGameOver();
     }
@@ -100,12 +125,15 @@ function drawSnake() {
 function moveSnake() {
     const head = { x: snake[0].x + xVelocity, y: snake[0].y + yVelocity };
     snake.unshift(head);
+    freeCells = freeCells.filter(elem => !(elem.x === head.x && elem.y === head.y))
+    
     if (snake[0].x == foodX && snake[0].y == foodY) {
         scoreValue++;
         score.textContent = scoreValue;
         createFood();
         drawFood();
     } else {
+        freeCells.push(snake[snake.length-1]);
         snake.pop();
     }
 }
